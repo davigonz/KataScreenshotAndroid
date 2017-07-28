@@ -18,6 +18,7 @@ package com.karumi.screenshot;
 
 import android.app.Activity;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 
 import com.karumi.screenshot.di.MainComponent;
@@ -36,6 +37,9 @@ import java.util.List;
 
 import it.cosenonjaviste.daggermock.DaggerMockRule;
 
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.mockito.Mockito.when;
 
 public class MainActivityTest extends ScreenshotTest {
@@ -88,6 +92,19 @@ public class MainActivityTest extends ScreenshotTest {
         givenThereAreSomeSuperHeroes(20);
 
         Activity activity = startActivity();
+
+        compareScreenshot(activity);
+    }
+
+    @Test
+    public void showSuperHeroesFooterIfThereAreSomeSuperHeroes() {
+
+        givenThereAreSomeSuperHeroes(10);
+
+        Activity activity = startActivity();
+
+        onView(withId(R.id.recycler_view)).
+                perform(RecyclerViewActions.scrollToPosition(9));
 
         compareScreenshot(activity);
     }
