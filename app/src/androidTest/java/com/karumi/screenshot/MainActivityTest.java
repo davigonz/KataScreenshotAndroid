@@ -106,6 +106,8 @@ public class MainActivityTest extends ScreenshotTest {
         onView(withId(R.id.recycler_view)).
                 perform(RecyclerViewActions.scrollToPosition(9));
 
+        // RecyclerViewActions.actionOnItemAtPosition(9, RecyclerViewActions.scrollTo())
+
         compareScreenshot(activity);
     }
 
