@@ -19,66 +19,101 @@ package com.karumi.screenshot;
 import android.app.Activity;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
+
 import com.karumi.screenshot.di.MainComponent;
 import com.karumi.screenshot.di.MainModule;
 import com.karumi.screenshot.model.SuperHero;
 import com.karumi.screenshot.model.SuperHeroesRepository;
 import com.karumi.screenshot.ui.view.MainActivity;
-import it.cosenonjaviste.daggermock.DaggerMockRule;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import it.cosenonjaviste.daggermock.DaggerMockRule;
 
 import static org.mockito.Mockito.when;
 
 public class MainActivityTest extends ScreenshotTest {
 
-  @Rule public DaggerMockRule<MainComponent> daggerRule =
-      new DaggerMockRule<>(MainComponent.class, new MainModule()).set(
-          new DaggerMockRule.ComponentSetter<MainComponent>() {
-            @Override public void setComponent(MainComponent component) {
-              SuperHeroesApplication app =
-                  (SuperHeroesApplication) InstrumentationRegistry.getInstrumentation()
-                      .getTargetContext()
-                      .getApplicationContext();
-              app.setComponent(component);
-            }
-          });
+    private static final boolean ANY_AVENGER = false;
 
-  @Rule public IntentsTestRule<MainActivity> activityRule =
-      new IntentsTestRule<>(MainActivity.class, true, false);
+    @Rule
+    public DaggerMockRule<MainComponent> daggerRule =
+            new DaggerMockRule<>(MainComponent.class, new MainModule()).set(
+                    new DaggerMockRule.ComponentSetter<MainComponent>() {
+                        @Override
+                        public void setComponent(MainComponent component) {
+                            SuperHeroesApplication app =
+                                    (SuperHeroesApplication) InstrumentationRegistry.getInstrumentation()
+                                            .getTargetContext()
+                                            .getApplicationContext();
+                            app.setComponent(component);
+                        }
+                    });
 
-  @Mock SuperHeroesRepository repository;
+    @Rule
+    public IntentsTestRule<MainActivity> activityRule =
+            new IntentsTestRule<>(MainActivity.class, true, false);
 
-  @Test public void showsEmptyCaseIfThereAreNoSuperHeroes() {
-    givenThereAreNoSuperHeroes();
+    @Mock
+    SuperHeroesRepository repository;
 
-    Activity activity = startActivity();
+    @Test
+    public void showsEmptyCaseIfThereAreNoSuperHeroes() {
+        givenThereAreNoSuperHeroes();
 
-    compareScreenshot(activity);
-  }
+        Activity activity = startActivity();
 
-  private List<SuperHero> givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean avengers) {
-    List<SuperHero> superHeroes = new LinkedList<>();
-    for (int i = 0; i < numberOfSuperHeroes; i++) {
-      String superHeroName = "SuperHero - " + i;
-      String superHeroDescription = "Description Super Hero - " + i;
-      SuperHero superHero = new SuperHero(superHeroName, null, avengers, superHeroDescription);
-      superHeroes.add(superHero);
-      when(repository.getByName(superHeroName)).thenReturn(superHero);
+        compareScreenshot(activity);
     }
-    when(repository.getAll()).thenReturn(superHeroes);
-    return superHeroes;
-  }
 
-  private void givenThereAreNoSuperHeroes() {
-    when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
-  }
+    @Test
+    public void showASuperHeroIfThereIsASuperHero() {
 
-  private MainActivity startActivity() {
-    return activityRule.launchActivity(null);
-  }
+        givenThereAreSomeSuperHeroes(1);
+
+        Activity activity = startActivity();
+
+        compareScreenshot(activity);
+    }
+
+    @Test
+    public void showSuperHeroesIfThereAreSomeSuperHeroes() {
+
+        givenThereAreSomeSuperHeroes(20);
+
+        Activity activity = startActivity();
+
+        compareScreenshot(activity);
+    }
+
+    private void givenThereAreSomeSuperHeroes(int numberofSuperHeroes) {
+        givenThereAreSomeSuperHeroes(numberofSuperHeroes, ANY_AVENGER);
+    }
+
+    private List<SuperHero> givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean avengers) {
+        List<SuperHero> superHeroes = new LinkedList<>();
+        for (int i = 0; i < numberOfSuperHeroes; i++) {
+            String superHeroName = "SuperHero - " + i;
+            String superHeroDescription = "Description Super Hero - " + i;
+            SuperHero superHero = new SuperHero(superHeroName, null, avengers, superHeroDescription);
+            superHeroes.add(superHero);
+            when(repository.getByName(superHeroName)).thenReturn(superHero);
+        }
+        when(repository.getAll()).thenReturn(superHeroes);
+        return superHeroes;
+    }
+
+    private void givenThereAreNoSuperHeroes() {
+        when(repository.getAll()).thenReturn(Collections.<SuperHero>emptyList());
+    }
+
+    private MainActivity startActivity() {
+        return activityRule.launchActivity(null);
+    }
 }
